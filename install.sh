@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # install important stuff
-sudo apt-get install -y python3-pip nano git python3 
+sudo apt install -y python3-pip python3 
 
 # Install fswebcam
-sudo apt-get install fswebcam
+sudo apt install fswebcam
 
 # Install Avahi Daemon
-sudo apt-get install avahi-daemon
+sudo apt install avahi-daemon
 
 # Configure Avahi Daemon
 sudo sed -i 's/#host-name=.*$/host-name=bunkermessungai/' /etc/avahi/avahi-daemon.conf
@@ -16,10 +16,10 @@ sudo sed -i 's/#host-name=.*$/host-name=bunkermessungai/' /etc/avahi/avahi-daemo
 sudo systemctl restart avahi-daemon
 
 # Install required Python packages
-pip install Flask requests git
+sudo pip install Flask requests git
 
 # Clone the repo
-git clone https://github.com/Erfinden/bunkermessungai.local /home
+sudo git clone https://github.com/Erfinden/bunkermessungai.local /home/bunkermessungai.local
 
 # Define the path to the cam.py script and the desired service name
 SCRIPT_PATH="/home/bunkermessungai.local/cam.py"
