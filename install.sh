@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# install important stuff
+sudo apt-get install -y python3-pip nano git python3 
+
 # Install fswebcam
 sudo apt-get install fswebcam
 
