@@ -16,7 +16,7 @@ sudo sed -i 's/#host-name=.*$/host-name=bunkermessungai/' /etc/avahi/avahi-daemo
 sudo systemctl restart avahi-daemon
 
 # Install required Python packages
-sudo pip install Flask requests git
+sudo pip install flask requests git
 
 # Clone the repo
 sudo git clone https://github.com/Erfinden/bunkermessungai-local /home/bunkermessungai-local
