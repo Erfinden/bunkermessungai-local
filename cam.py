@@ -9,7 +9,7 @@ import datetime
 
 app = Flask(__name__)
 
-with open('config.json', 'r') as f:
+with open('/home/bunkermessungai-local/config.json', 'r') as f:
     config = json.load(f)
 
 capturing = False
@@ -18,7 +18,7 @@ capture_thread = None
 def capture_and_upload():
     global capturing
     while capturing:
-        with open('config.json', 'r') as f:
+        with open('/home/bunkermessungai-local/config.json', 'r') as f:
             config = json.load(f)
         try:
             # Capture and save the image
@@ -126,7 +126,7 @@ def update_config():
     config['time'] = time
 
     # Save the updated configuration to the JSON file
-    with open('config.json', 'w') as f:
+    with open('/home/bunkermessungai-local/config.json', 'w') as f:
         json.dump(config, f, indent=4)
 
     return redirect('/')  # Redirect back to the main page
