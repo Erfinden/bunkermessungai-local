@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # install important stuff
-sudo apt install -y python3-pip python3 
+sudo apt install -y python3-pip python3 git
 
 # Install fswebcam
 sudo apt install fswebcam
@@ -16,7 +16,7 @@ sudo sed -i 's/#host-name=.*$/host-name=bunkermessungai/' /etc/avahi/avahi-daemo
 sudo systemctl restart avahi-daemon
 
 # Install required Python packages
-sudo pip install flask requests git
+sudo pip install flask requests
 
 # Clone the repo
 sudo git clone https://github.com/Erfinden/bunkermessungai-local /home/bunkermessungai-local
