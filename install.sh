@@ -19,10 +19,10 @@ sudo systemctl restart avahi-daemon
 sudo pip install Flask requests git
 
 # Clone the repo
-sudo git clone https://github.com/Erfinden/bunkermessungai.local /home/bunkermessungai.local
+sudo git clone https://github.com/Erfinden/bunkermessungai-local /home/bunkermessungai-local
 
 # Define the path to the cam.py script and the desired service name
-SCRIPT_PATH="/home/bunkermessungai.local/cam.py"
+SCRIPT_PATH="/home/bunkermessungai-local/cam.py"
 SERVICE_NAME="cam"
 
 # Get the current user and group
