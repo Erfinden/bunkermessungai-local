@@ -1,0 +1,179 @@
+@media screen and (max-width: 325px) {
+    .head h1{
+        word-break: break-all; 
+    }
+}
+@media screen and (max-width: 457px) {
+    .head{
+        margin-bottom: 15px;
+    }
+    .capturebtn{
+        flex-direction: column;
+    }
+}
+
+body, html{
+    color-scheme: dark;
+}
+
+input[type="text"]{
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.75);
+    border-style: solid;
+    margin: 1px;
+    width: 200px;
+    max-width: 60%;
+    padding: 5px;
+    background-color: transparent;
+    text-align: center;
+
+}
+
+button[type="submit"]{
+    height: 25px;
+    width: 25px;
+    display: grid;
+    place-content: center;
+    padding: 2px 0 0 2px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 2px;
+    transition: 0.3s ease-in-out;
+}
+
+button[type="submit"]:hover{
+    background: rgba(255, 255, 255, 0.75);
+    color: black
+}
+
+.updateconfig{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: "Nunito";
+}
+
+.content{
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    border-radius: 25px;
+    box-shadow: 0px 0px 5px 2px rgba(255, 255, 255, 0.3);
+    max-width: 100%;
+    overflow: hidden;
+    text-align: center;
+    padding-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.status-light{
+    background-color: red;
+    width: 25px;
+    min-width: 25px;
+    min-height: 25px;
+    height: 25px;
+    border-radius: 50%;
+    margin-right: 5px;
+    border-width: 1px;
+    border: solid;
+    border-color: rgba(44, 44, 44, 0.5);
+}
+
+.success {
+    background-color: rgb(26, 255, 0);
+}
+
+.failure {
+    background-color: red;
+}
+
+.updateconfig label{
+    width: 40px;
+    display: inline-block;
+}
+
+.head{
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+h1{
+    margin: 0;
+}
+
+.image{
+    position: relative;
+    justify-content: center;
+}
+
+.image > img{
+    position: relative; 
+    max-width: 100%;
+    border-radius: 25px;
+}
+
+.image > p{
+    position: absolute; 
+    top: 0;
+    margin: 10px;
+    text-shadow: 0px 0px 10px black, 0px 0px 10px black, 0px 0px 10px black, 0px 0px 10px black;
+}
+
+.image > a{
+    position: absolute;
+    top: 40px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1px 5px;
+    border-radius: 20px;
+    color: white;
+    transition: 0.3s ease-in-out;
+}
+
+.image > a:hover{
+    background: rgba(255, 255, 255, 0.75);
+    color: black;
+}    
+
+.capturebtn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.capturebtn a{
+    color: white;
+    text-decoration: none;
+    margin: 0 5px;
+    border-radius: 25px;
+    padding: 0 5px;
+    border: solid 2px rgba(255, 255, 255, 0.75);
+    transition: 0.3s ease-in-out;
+}
+
+.capturebtn a:hover{
+    background: rgba(255, 255, 255, 0.75);
+    color: black;
+}
+.active{
+    color:rgb(26, 255, 0);
+}
+.notactive{
+    color: red;
+}
+.active, .notactive{
+    display: inline-block;
+    margin: 0;
+}
