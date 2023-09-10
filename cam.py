@@ -58,7 +58,7 @@ def capture_image_windows(key):
 
 def capture_image_linux(key):
     try:
-        os.system("fswebcam -r 1280x720 --no-banner static/images/captured_image.jpg")
+        os.system("sudo fswebcam  -r 1280x720 --no-banner /home/bunkermessungai-local/static/images/captured_image.jpg")
         upload_image(key)
     except: 
         print("Failed to capture image.")
