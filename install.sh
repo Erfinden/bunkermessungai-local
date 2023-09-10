@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Activate legacy camera automaticly, if needed  
+sudo bash -c 'if grep -q "^start_x=" /boot/config.txt; then sed -i "s/^start_x=.*/start_x=1/" /boot/config.txt; else echo "start_x=1" >> /boot/config.txt; fi'
+sudo bash -c 'if grep -q "^gpu_mem=" /boot/config.txt; then sed -i "s/^gpu_mem=.*/gpu_mem=128/" /boot/config.txt; else echo "gpu_mem=128" >> /boot/config.txt; fi'
+sudo bash -c 'if grep -q "^camera_auto_detect=" /boot/config.txt; then sed -i "s/^camera_auto_detect=.*/#camera_auto_detect=1/" /boot/config.txt; else echo "#camera_auto_detect=1" >> /boot/config.txt; fi'
+
 # install important stuff
 sudo apt install -y python3-pip python3 git
 
@@ -51,3 +56,10 @@ sudo systemctl enable "$SERVICE_NAME.service"
 sudo systemctl start "$SERVICE_NAME.service"
 
 echo "Installation completed successfully."
+sleep 1
+echo "rebooting in ...3"
+sleep 1
+echo "rebooting in ...2"
+sleep 1
+echo "rebooting in ...1"
+sudo reboot
