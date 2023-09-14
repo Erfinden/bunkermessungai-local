@@ -6,8 +6,21 @@ import requests
 import platform
 import os
 import datetime
+import RPi.GPIO as GPIO
 
 app = Flask(__name__)
+
+GPIO.setmode(GPIO.BCM)
+GPIO.cleanup()
+PowerLED = 23 # Change if needed
+StatusLED = 24 # Change if needed
+GPIO.setup(PowerLED, GPIO.OUT)
+GPIO.setup(StatusLED, GPIO.OUT)
+
+try: 
+    GPIO.output(PowerLED, GPIO.HIGH)
+except KeyboardInterrupt:
+    GPIO.cleanup()
 
 with open('/home/bunkermessungai-local/config.json', 'r') as f:
     config = json.load(f)
@@ -103,9 +116,17 @@ def ping_server(key):
         response = requests.post(url, data=data)
         print(response.text)
         config['ping_success'] = True
+        try: 
+            GPIO.output(StatusLED, GPIO.HIGH)
+        except KeyboardInterrupt:
+            GPIO.cleanup()
     except:
         print("Error pinging the server!")
         config['ping_success'] = False
+        try: 
+            GPIO.output(StatusLED, GPIO.LOW)
+        except KeyboardInterrupt:
+            GPIO.cleanup()
 
 def periodic_ping():
     global config
