@@ -46,7 +46,7 @@ def capture_and_upload():
             print("Error:", e)
 
 def upload_image(key):
-    url = 'http://128.140.90.80:5000/upload'
+    url = 'https://128.140.90.80:5000/upload'
     files = {'image': open("static/images/captured_image.jpg", 'rb')}
     data = {'key': key}
     if files:
@@ -111,7 +111,7 @@ def stop_capture():
 def ping_server(key):
     global config
     try:
-        url = 'http://128.140.90.80:5000/status_cam'
+        url = 'https://128.140.90.80:5000/status_cam'
         data = {'key': key}
         response = requests.post(url, data=data)
         print(response.text)
