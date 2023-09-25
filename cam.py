@@ -6,21 +6,21 @@ import requests
 import platform
 import os
 import datetime
-import RPi.GPIO as GPIO
+
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    print("GPIO library not installed. This code is intended to run on Raspberry Pi.")
 
 app = Flask(__name__)
 
 GPIO.setmode(GPIO.BCM)
 GPIO.cleanup()
-PowerLED = 23 # Change if needed
-StatusLED = 24 # Change if needed
+PowerLED = 23
+StatusLED = 24
 GPIO.setup(PowerLED, GPIO.OUT)
 GPIO.setup(StatusLED, GPIO.OUT)
-
-try: 
-    GPIO.output(PowerLED, GPIO.HIGH)
-except KeyboardInterrupt:
-    GPIO.cleanup()
+GPIO.output(PowerLED, GPIO.HIGH)
 
 with open('/home/bunkermessungai-local/config.json', 'r') as f:
     config = json.load(f)
@@ -34,14 +34,11 @@ def capture_and_upload():
         with open('/home/bunkermessungai-local/config.json', 'r') as f:
             config = json.load(f)
         try:
-            # Capture and save the image
             if platform.system() == 'Windows':
                 capture_image_windows(config['key'])
             elif platform.system() == 'Linux':
                 capture_image_linux(config['key'])
-
-            time.sleep(86400 / int(config['time'])) 
-
+            time.sleep(86400 / int(config['time']))
         except Exception as e:
             print("Error:", e)
 
@@ -49,12 +46,11 @@ def upload_image(key):
     url = 'https://bunkermessungai.de:5000/upload'
     files = {'image': open("static/images/captured_image.jpg", 'rb')}
     data = {'key': key}
-    if files:
-        try:
-            response = requests.post(url, files=files, data=data)
-            print(response.text)
-        except: 
-            print("Error uploading Image")
+    try:
+        response = requests.post(url, files=files, data=data)
+        print(response.text)
+    except:
+        print("Error uploading Image")
 
 def capture_image_windows(key):
     import cv2
@@ -62,33 +58,25 @@ def capture_image_windows(key):
     ret, frame = cap.read()
     if ret:
         cv2.imwrite("static/images/captured_image.jpg", frame)
-        print("Image captured successfully.")
         upload_image(key)
-    else:
-        print("Failed to capture image.")
     cap.release()
-    cv2.destroyAllWindows()
 
 def capture_image_linux(key):
     try:
-        os.system("sudo fswebcam  -r 1280x720 --no-banner /home/bunkermessungai-local/static/images/captured_image.jpg")
+        os.system("sudo fswebcam -r 1280x720 --no-banner /home/bunkermessungai-local/static/images/captured_image.jpg")
         upload_image(key)
-    except: 
+    except:
         print("Failed to capture image.")
-        pass
 
 @app.route('/')
 def index():
     image_path = os.path.join(app.static_folder, 'images', 'captured_image.jpg')
     last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(image_path))
     formatted_last_modified = last_modified_time.strftime('%d/%m/%Y %H:%M:%S')
-
     config_key = config['key']
     if config_key == "":
         config_key = None
-
     return render_template('index.html', last_modified=formatted_last_modified, capturing=capturing, config=config, config_key=config_key)
-
 
 @app.route('/start_capture')
 def start_capture():
@@ -103,30 +91,26 @@ def start_capture():
 def stop_capture():
     global capturing
     capturing = False
-    print("test end")
     if capture_thread:
-        capture_thread.join() 
+        capture_thread.join()
     return redirect('/')
 
 def ping_server(key):
     global config
+    url = 'https://bunkermessungai.de:5000/status_cam'
+    data = {'key': key}
     try:
-        url = 'https://bunkermessungai.de:5000/status_cam'
-        data = {'key': key}
         response = requests.post(url, data=data)
+        response.raise_for_status()
         print(response.text)
         config['ping_success'] = True
-        try: 
-            GPIO.output(StatusLED, GPIO.HIGH)
-        except KeyboardInterrupt:
-            GPIO.cleanup()
-    except:
-        print("Error pinging the server!")
+        GPIO.output(StatusLED, GPIO.HIGH)
+    except requests.RequestException as e:
+        print(f"Error pinging the server: {e}")
         config['ping_success'] = False
-        try: 
-            GPIO.output(StatusLED, GPIO.LOW)
-        except KeyboardInterrupt:
-            GPIO.cleanup()
+        GPIO.output(StatusLED, GPIO.LOW)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
 
 def periodic_ping():
     global config
@@ -134,24 +118,21 @@ def periodic_ping():
         ping_server(config['key'])
         time.sleep(10)
 
-
-
 @app.route('/update_config', methods=['POST'])
 def update_config():
     global config
     key = request.form.get('key')
     time = request.form.get('time')
-    
-    # Update the configuration settings
     config['key'] = key
     config['time'] = time
-
-    # Save the updated configuration to the JSON file
     with open('/home/bunkermessungai-local/config.json', 'w') as f:
         json.dump(config, f, indent=4)
-
-    return redirect('/')  # Redirect back to the main page
+    return redirect('/')
 
 if __name__ == '__main__':
-    threading.Thread(target=periodic_ping).start()
-    app.run(host='0.0.0.0', port=80)
+    try:
+        threading.Thread(target=periodic_ping).start()
+        app.run(host='0.0.0.0', port=80)
+    except KeyboardInterrupt:
+        print("Server stopped by user.")
+        GPIO.cleanup()
