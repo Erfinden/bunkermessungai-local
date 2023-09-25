@@ -7,6 +7,8 @@ import platform
 import os
 import datetime
 
+main_url = "https://bunkermessungai.de:5000"
+
 try:
     import RPi.GPIO as GPIO
 except ImportError:
@@ -43,7 +45,7 @@ def capture_and_upload():
             print("Error:", e)
 
 def upload_image(key):
-    url = 'https://bunkermessungai.de:5000/upload'
+    url = f'{main_url}/upload'
     files = {'image': open("static/images/captured_image.jpg", 'rb')}
     data = {'key': key}
     try:
@@ -97,7 +99,7 @@ def stop_capture():
 
 def ping_server(key):
     global config
-    url = 'https://bunkermessungai.de:5000/status_cam'
+    url = f'{main_url}/status_cam'
     data = {'key': key}
     try:
         response = requests.post(url, data=data)
