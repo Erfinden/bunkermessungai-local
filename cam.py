@@ -73,7 +73,7 @@ def capture_image_linux(key):
 @app.route('/')
 def index():
     image_path = os.path.join(app.static_folder, 'images', 'captured_image.jpg')
-    last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(image_path))
+    last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(image_path)) + datetime.timedelta(hours=1)
     formatted_last_modified = last_modified_time.strftime('%d/%m/%Y %H:%M:%S')
     config_key = config['key']
     if config_key == "":
