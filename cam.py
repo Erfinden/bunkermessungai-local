@@ -152,13 +152,24 @@ def periodic_ping():
 @app.route('/update_config', methods=['POST'])
 def update_config():
     global config
+    
     key = request.form.get('key')
     time = request.form.get('time')
+    
+    # Brenner Fields - these are now lists
+    brenner_ips = request.form.getlist('brenner_ip')
+    brenner_names = request.form.getlist('brenner_name')
+    
     config['key'] = key
     config['time'] = time
+    config['brenner'] = [
+        {"ip": ip, "name": name} for ip, name in zip(brenner_ips, brenner_names)
+    ]
+    
     with open('config.json', 'w') as f:
         json.dump(config, f, indent=4)
     return redirect('/')
+
 
 
 class HdgComm:

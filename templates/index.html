@@ -31,19 +31,95 @@
             <a href="/start_capture">Diese Kamera starten</a>
             {% endif %}
         </div>
-        <form class="updateconfig" action="/update_config" method="post">
-            <div>
-                <label title="Hier kannst du deinen Key ändern" for="key">Key:</label>
-                <input title="Hier kannst du deinen Key ändern" type="text" id="key" name="key" placeholder="hier einen key einsetzen" {% if config_key != None %}value="{{ config_key }}"{% endif %}><br>
-            
-                <label title="Hier kannst du festlegen, wie oft am Tag bilder gemacht werden" for="time">Time:</label>
-                <input title="Hier kannst du festlegen, wie oft am Tag bilder gemacht werden" type="text" id="time" name="time" value="{{ config.time }}"><br>
-            </div>
+        <p style="margin: 0;">Configuration</p>
+        <form class="updateconfig" action="/update_config" method="post" autocomplete="off">
+            <div class="config_wrapper">
+                <div>
+                    <label title="Hier kannst du deinen Key ändern" for="key">Key:</label>
+                    <input title="Hier kannst du deinen Key ändern" type="text" id="key" name="key" placeholder="Den Geheim Key hier eingeben" {% if config_key != None %}value="{{ config_key }}"{% endif %}><br>
+                
+                    <label title="Hier kannst du festlegen, wie oft am Tag bilder gemacht werden" for="time">Time:</label>
+                    <input title="Hier kannst du festlegen, wie oft am Tag bilder gemacht werden" placeholder="Wie viele Bilder pro Tag?" type="text" id="time" name="time" value="{{ config.time }}"><br>
+                </div>
+                <p class="brenner_p" >Eingerichtete Brenner</p>
+                <div id="brennerFields">
+                    <!-- Existing Brenner fields will be inserted here via Flask -->
+                    {% for brenner in config.brenner %}
+                    <div class="brenner">
+                        <div>
+                            <div>
+                                <label>IP:</label>
+                                <input type="text" name="brenner_ip" placeholder="Ip vom Hdg Brenner" value="{{ brenner.ip }}">
+                            </div>
+                            
+                            <div>
+                                <label>Name:</label>
+                                <input type="text" name="brenner_name" placeholder="Bennene den Brenner (optional)" value="{{ brenner.name }}">
+                            </div>
+                        </div>
 
-            <button type="submit" title="Hier kannst du deine Änderungen speichern">
-                <i class="fas fa-check"></i>
-            </button>
+                        <button type="button" class="deleteBrenner" onclick="deleteBrenner(this)">🗑️</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="updater_buttons">
+                <button type="button" id="addBrenner">+</button>
+
+                <button type="submit" title="Hier kannst du deine Änderungen speichern">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
         </form>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var form = document.querySelector('.updateconfig');
+                var submitButton = form.querySelector('[type="submit"]');
+                
+                form.addEventListener('input', function() {
+                    triggerGlow();
+                });
+                
+                form.addEventListener('submit', function() {
+                    submitButton.classList.remove('button-glow');
+                });
+                
+                document.querySelectorAll('.deleteBrenner').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        triggerGlow();
+                    });
+                });
+            });
+
+            function triggerGlow() {
+                document.querySelector('[type="submit"]').classList.add('button-glow');
+            }
+
+            document.getElementById('addBrenner').addEventListener('click', function() {
+                var brennerFields = document.getElementById('brennerFields');
+                var newBrenner = document.createElement('div');
+                newBrenner.className = 'brenner';
+                newBrenner.innerHTML = `
+                    <div>
+                        <div>
+                            <label>IP:</label>
+                            <input type="text" name="brenner_ip" placeholder="Ip vom Hdg Brenner" value="">
+                        </div>
+                        <div>
+                            <label>Name:</label>
+                            <input type="text" name="brenner_name"  placeholder="Bennene den Brenner (optional)" value="">
+                        </div>
+                    </div>
+                    <button type="button" class="deleteBrenner" onclick="deleteBrenner(this)">🗑️</button>
+                `;
+                brennerFields.appendChild(newBrenner);
+
+            });
+            
+            function deleteBrenner(button) {
+                button.parentElement.remove();
+            }
+            </script>
     </div>
 </body>
 </html>

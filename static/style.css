@@ -10,20 +10,39 @@
     .capturebtn{
         flex-direction: column;
     }
+    #brennerFields{
+        margin:0px !important;
+    }
+    .deleteBrenner{
+        margin:0px !important;
+    }
+    .content{
+        padding-bottom: 60px !important;
+    }
+}
+
+@media screen and (max-width: 200px) {
+    body{
+        display: none !important;
+    }
+    html{
+        background: red;
+    }
 }
 
 body, html{
     color-scheme: dark;
+    background:#191919;
 }
 
 input[type="text"]{
     border-radius: 8px;
     border-width: 2px;
-    border-color: rgba(255, 255, 255, 0.75);
+    border-color: rgba(128, 128, 128, 0.3);
     border-style: solid;
     margin: 1px;
     width: 200px;
-    max-width: 60%;
+    max-width: 80%;
     padding: 5px;
     background-color: transparent;
     text-align: center;
@@ -35,15 +54,14 @@ button[type="submit"]{
     width: 25px;
     display: grid;
     place-content: center;
-    padding: 2px 0 0 2px;
     cursor: pointer;
     background: rgba(255, 255, 255, 0.15);
     border: none;
-    border-radius: 2px;
+    border-radius: 5px;
     transition: 0.3s ease-in-out;
 }
 
-button[type="submit"]:hover{
+button:hover{
     background: rgba(255, 255, 255, 0.75);
     color: black
 }
@@ -56,6 +74,19 @@ button[type="submit"]:hover{
     margin-top: 10px;
 }
 
+.button-glow {
+    animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #009e28, 0 0 20px #009e28;
+    }
+    to {
+        box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #009e28, 0 0 40px #009e28;
+    }
+}
+
 body{
     display: flex;
     justify-content: center;
@@ -65,6 +96,7 @@ body{
 }
 
 .content{
+    position: relative;
     flex-direction: column;
     display: flex;
     align-items: center;
@@ -75,6 +107,7 @@ body{
     text-align: center;
     padding-bottom: 10px;
     background: rgba(255, 255, 255, 0.05);
+    padding-bottom: 15px;
 }
 
 .status-light{
@@ -151,6 +184,7 @@ h1{
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 20px;
 }
 
 .capturebtn a{
@@ -176,4 +210,56 @@ h1{
 .active, .notactive{
     display: inline-block;
     margin: 0;
+}
+
+.brenner{
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.updater_buttons{
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.deleteBrenner{
+    height: 30px;
+    width: 30px;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 25px;
+    transition: 0.3s ease-in-out;
+    margin-right: 50px;
+}
+
+#addBrenner{
+    height: 40px;
+    width: 40px;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 25px;
+    transition: 0.3s ease-in-out;
+    font-size: 25px;
+}
+
+#brennerFields{
+    margin-left: 72px;
+}
+
+.brenner_p{
+    margin-top: 7px;
+    margin-bottom: 0px;
+    text-align: center;
+    margin-left: -10px;
 }
