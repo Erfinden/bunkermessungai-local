@@ -96,8 +96,6 @@ def login_to_server(username, password):
     except Exception as e:
         print("Error during login:", e)
 
-login_to_server("test", "test")
-
 capturing = False
 capture_thread = None
 
@@ -151,12 +149,6 @@ def capture_image_linux(key):
     except:
         print("Failed to capture image.")
 
-@app.route('/update_credentials', methods=['POST'])
-def update_credentials():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    encrypt_credentials(username, password)
-    return redirect('/')
 
 @app.route('/')
 def index():
@@ -164,9 +156,31 @@ def index():
     last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(image_path)) + datetime.timedelta(hours=1)
     formatted_last_modified = last_modified_time.strftime('%d/%m/%Y %H:%M:%S')
     config_key = config['key']
+    
+    if os.path.exists("credentials.enc"):
+        username, _ = decrypt_credentials()
+    else:
+        username = "Not logged in!"
+
     if config_key == "":
         config_key = None
-    return render_template('index.html', last_modified=formatted_last_modified, capturing=capturing, config=config, config_key=config_key)
+    
+    return render_template('index.html', last_modified=formatted_last_modified, capturing=capturing, config=config, config_key=config_key, username=username)
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    login_to_server(username, password)
+    return redirect('/')
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    if os.path.exists("credentials.enc"):
+        os.remove("credentials.enc")
+    global cookies
+    cookies = {}
+    return redirect('/')
 
 @app.route('/start_capture')
 def start_capture():
@@ -193,10 +207,11 @@ def ping_server(key):
 
     try:
         response = requests.post(url, data=data, cookies=cookies)
+        response_json = response.json()
         
         # Check for token expiration
-        if response.json().get('message') == "Token expired, relogin!":
-            print("token expired!")
+        if response_json.get('message') == "Token expired, relogin!":
+            print("Token expired!")
             if os.path.exists("credentials.enc"):
                 username, password = decrypt_credentials()
                 login_to_server(username, password)
@@ -204,7 +219,17 @@ def ping_server(key):
                 response = requests.post(url, data=data, cookies=cookies)
             else:
                 print("Token expired and no encrypted credentials found. Please login.")
+        elif response_json.get('message') == "No token, relogin!":
+            print("Token missing! Please login.")
+            try:
+                username, password = decrypt_credentials()
+                login_to_server(username, password)
+            except:
+                pass
+            return  # Skip further processing
         
+        
+
         print(response.text)
         config['ping_success'] = True
         if platform.system() == 'Linux':
@@ -315,7 +340,6 @@ def fetch_data_from_brenner():
 
     # Combine all brenner data into a single string and upload
     upload_image(config['key'], "; ".join(all_brenner_data))
-
 
 if __name__ == '__main__':
     try:

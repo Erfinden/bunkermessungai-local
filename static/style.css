@@ -35,7 +35,7 @@ body, html{
     background:#191919;
 }
 
-input[type="text"]{
+input[type="text"]:not(#login_form input[type="text"]) {
     border-radius: 8px;
     border-width: 2px;
     border-color: rgba(128, 128, 128, 0.3);
@@ -46,7 +46,6 @@ input[type="text"]{
     padding: 5px;
     background-color: transparent;
     text-align: center;
-
 }
 
 button[type="submit"]{
@@ -140,6 +139,7 @@ body{
     display: flex;
     align-items: center;
     text-align: center;
+    margin-top: 50px;
 }
 
 h1{
@@ -263,3 +263,61 @@ h1{
     text-align: center;
     margin-left: -10px;
 }
+
+.account_profile{
+    position:absolute;
+    flex-direction: column;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #333;
+    padding: 2px 5px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+#account_name{
+    margin:0;
+}
+
+.account_profile_upper{
+    display: flex;
+    gap: 10px;
+}
+
+#logout_button{
+    cursor:pointer;
+    display: none;
+}
+
+.gradiant_bottom{
+    background: rgb(0,0,0);
+    background: linear-gradient(0deg, rgb(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 70%);
+    width: 100%;
+    height: 10%;
+    position: fixed;
+    bottom: 0px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+#login_form{
+    display: none;
+}
+
+#login_form_internal{
+    flex-direction: column;
+    display: flex;
+    gap: 5px;
+}
+
+#login_form input[type="text"], 
+#login_form input[type="password"] {
+    border: none;
+    border-radius: 2px;
+
+}
+

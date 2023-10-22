@@ -6,9 +6,32 @@
     <title>Bunkermessungai Kamera</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet"href="https://fonts.googleapis.com/css?family=Nunito">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
+    <div class="gradiant_bottom"></div>
+    <div class="account_profile" onclick="toggleDropdown()">
+        <div class="account_profile_upper">
+            <p id="account_name">{{ username }}</p>
+            <span class="material-symbols-outlined">
+                account_circle
+            </span>
+        </div>
+        {% if username != "Not logged in!" %}
+            <button id="logout_button" class="dropdown_item" onclick="logout()">logout</button>
+        {% else %}
+            <div id="login_form" class="dropdown_item">
+                <form id="login_form_internal" action="/login" method="post" onclick="event.stopPropagation();">
+                    <input type="text" name="username" placeholder="username" required>
+                    <input type="password" name="password" placeholder="password" required>
+                    <input type="submit" value="Login">
+                </form>
+            </div>
+        {% endif %}
+    </div>
+    
+    
     <div class="head">
         <div class="status-light {% if config.ping_success %}success{% else %}failure{% endif %}" id="status-light" title="{% if config.ping_success %}Online{% else %}Offline{% endif %}"></div>
         <h1>Bunkermessungai.de Kamera</h1>
@@ -31,6 +54,12 @@
             <a href="/start_capture">Diese Kamera starten</a>
             {% endif %}
         </div>
+        {% if token_missing %}
+            <div class="alert alert-danger">
+                Token is missing! Please login.
+            </div>
+        {% endif %}
+        
         <p style="margin: 0;">Configuration</p>
         <form class="updateconfig" action="/update_config" method="post" autocomplete="off">
             <div class="config_wrapper">
@@ -119,6 +148,41 @@
             function deleteBrenner(button) {
                 button.parentElement.remove();
             }
+
+            function toggleDropdown() {
+                const dropdownItems = document.querySelectorAll(".dropdown_item");
+                dropdownItems.forEach(item => {
+                    if (item.style.display === "none" || !item.style.display) {
+                        item.style.display = "block";
+                    } else {
+                        item.style.display = "none";
+                    }
+                });
+            }
+
+            // You might not need this function anymore, but I'll leave it here just in case.
+            function show_logout_button(){
+                const logoutButton = document.getElementById("logout_button");
+                if (logoutButton.style.display === "none" || !logoutButton.style.display) {
+                    logoutButton.style.display = "block";
+                } else {
+                    logoutButton.style.display = "none";
+                }
+            }
+
+            function logout() {
+                fetch('/logout', {
+                    method: 'POST'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Failed to logout.');
+                    }
+                });
+            }
+
             </script>
     </div>
 </body>
