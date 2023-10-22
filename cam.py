@@ -6,8 +6,9 @@ import requests
 import platform
 import os
 import datetime
+from cryptography.fernet import Fernet
 
-cookies = {'access_token_cookie': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY5NjY5NjA5OSwianRpIjoiMzE1YmU3NzItYzlhZC00ZGZkLTliYWUtYmUyY2IwZGJmMmE5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3QiLCJuYmYiOjE2OTY2OTYwOTksImV4cCI6MTY5NjY5Njk5OX0.STtFU-gxvgoIvsT9qY2dldnJVevBtyS_g8aRZrOSQn4'}
+cookies = {}
 
 # try to import GPIO on linux
 if platform.system() == 'Linux':
@@ -21,7 +22,7 @@ if platform.system() == 'Linux':
 
 with open('config.json', 'r') as f:
     config = json.load(f)
-
+main_url = config["main_url"]
 
 app = Flask(__name__)
 
@@ -36,7 +37,67 @@ try:
 except:
     pass
 
-main_url = config["main_url"]
+def generate_key():
+    """Generates a key and save it into a file if it doesn't exist."""
+    if not os.path.exists("secret.key"):
+        key = Fernet.generate_key()
+        with open("secret.key", "wb") as key_file:
+            key_file.write(key)
+
+generate_key()
+
+def load_key():
+    """Loads the key from the current directory named `secret.key`."""
+    return open("secret.key", "rb").read()
+
+def encrypt_credentials(username, password):
+    """Encrypts the username and password and stores them in a file."""
+    key = load_key()
+    cipher_suite = Fernet(key)
+    encrypted_data = {
+        "username": cipher_suite.encrypt(username.encode()).decode(),
+        "password": cipher_suite.encrypt(password.encode()).decode()
+    }
+    
+    with open("credentials.enc", "w") as file:
+        json.dump(encrypted_data, file)
+
+def decrypt_credentials():
+    """Decrypts the username and password and returns them."""
+    key = load_key()
+    cipher_suite = Fernet(key)
+
+    with open("credentials.enc", "r") as file:
+        encrypted_data = json.load(file)
+
+    decrypted_data = {
+        "username": cipher_suite.decrypt(encrypted_data["username"].encode()).decode(),
+        "password": cipher_suite.decrypt(encrypted_data["password"].encode()).decode()
+    }
+
+    return decrypted_data["username"], decrypted_data["password"]
+
+def login_to_server(username, password):
+    """Login to the server, update the access token cookie, and store encrypted credentials."""
+    global cookies
+
+    data = {
+        "username": username,
+        "password": password
+    }
+
+    try:
+        response = requests.post(f'{main_url}/login', json=data)
+        if response.status_code == 200:
+            cookies['access_token_cookie'] = response.cookies['access_token_cookie']
+            encrypt_credentials(username, password)  # Store the credentials once successfully logged in
+        else:
+            print("Failed to login:", response.json())
+    except Exception as e:
+        print("Error during login:", e)
+
+login_to_server("test", "test")
+
 capturing = False
 capture_thread = None
 
@@ -90,6 +151,13 @@ def capture_image_linux(key):
     except:
         print("Failed to capture image.")
 
+@app.route('/update_credentials', methods=['POST'])
+def update_credentials():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    encrypt_credentials(username, password)
+    return redirect('/')
+
 @app.route('/')
 def index():
     image_path = os.path.join(app.static_folder, 'images', 'captured_image.jpg')
@@ -122,9 +190,21 @@ def ping_server(key):
     global cookies
     url = f'{main_url}/status_cam'
     data = {'key': key}
-    cookies=cookies
+
     try:
-        response = requests.post(url, data=data,cookies=cookies)
+        response = requests.post(url, data=data, cookies=cookies)
+        
+        # Check for token expiration
+        if response.json().get('message') == "Token expired, relogin!":
+            print("token expired!")
+            if os.path.exists("credentials.enc"):
+                username, password = decrypt_credentials()
+                login_to_server(username, password)
+                # Retry the ping after re-login
+                response = requests.post(url, data=data, cookies=cookies)
+            else:
+                print("Token expired and no encrypted credentials found. Please login.")
+        
         print(response.text)
         config['ping_success'] = True
         if platform.system() == 'Linux':

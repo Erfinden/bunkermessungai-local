@@ -41,7 +41,7 @@
                     <label title="Hier kannst du festlegen, wie oft am Tag bilder gemacht werden" for="time">Time:</label>
                     <input title="Hier kannst du festlegen, wie oft am Tag bilder gemacht werden" placeholder="Wie viele Bilder pro Tag?" type="text" id="time" name="time" value="{{ config.time }}"><br>
                 </div>
-                <p class="brenner_p" >Eingerichtete Brenner</p>
+                <p class="brenner_p" >Eingerichtete Brenner (optional)</p>
                 <div id="brennerFields">
                     <!-- Existing Brenner fields will be inserted here via Flask -->
                     {% for brenner in config.brenner %}
