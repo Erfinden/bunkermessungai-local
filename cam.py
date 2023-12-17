@@ -110,13 +110,15 @@ def login_to_server(username, password):
 
 
 def capture_and_upload():
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-    capturing = config["capturing"]
     while True:
-        if capturing:
-            with open('config.json', 'r') as f:
+        with open('config.json', 'r') as f:
+            if f.read().strip():
+                f.seek(0)  # reset file pointer to beginning
                 config = json.load(f)
+        
+        capturing = config["capturing"]
+        
+        if capturing == True:
             try:
                 # Capture and upload image
                 if platform.system() == 'Windows':
@@ -168,8 +170,13 @@ def index():
         config = json.load(f)
     capturing = config["capturing"]
     image_path = os.path.join(app.static_folder, 'images', 'captured_image.jpg')
-    last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(image_path)) + datetime.timedelta(hours=1)
-    formatted_last_modified = last_modified_time.strftime('%d/%m/%Y %H:%M:%S')
+    
+    if os.path.exists(image_path):
+        last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(image_path)) + datetime.timedelta(hours=1)
+        formatted_last_modified = last_modified_time.strftime('%d/%m/%Y %H:%M:%S')
+    else:
+        formatted_last_modified = ""
+    
     config_key = config['key']
     
     if os.path.exists("credentials.enc"):
@@ -341,25 +348,32 @@ def callback(data, error, brenner_name, ip_adress):
 
 
 def fetch_data_from_brenner():
-    q = "22069"  # Query parameter for data fetching
-    
-    # Fetch and print data for each IP address
-    all_brenner_data = []
-    for idx, brenner in enumerate(config['brenner'], start=1):
-        ip_address = brenner['ip']
-        brenner_name = brenner.get('name', f'brenner[{idx}]')
-        hdg_comm = HdgComm(ip_address, q)
-        
-        # Get brenner data
-        brenner_data = hdg_comm.data_refresh(lambda data, error: callback(data, error, brenner_name, ip_address))
-        all_brenner_data.append(brenner_data)
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    if "brenner" in config:
+        q = "22069"  # Query parameter for data fetching
 
-    # Combine all brenner data into a single string and upload
-    upload_image(config['key'], "; ".join(all_brenner_data))
+        # Fetch and print data for each IP address
+        all_brenner_data = []
+        for idx, brenner in enumerate(config['brenner'], start=1):
+            ip_address = brenner['ip']
+            brenner_name = brenner.get('name', f'brenner[{idx}]')
+            hdg_comm = HdgComm(ip_address, q)
+            
+            # Get brenner data
+            brenner_data = hdg_comm.data_refresh(lambda data, error: callback(data, error, brenner_name, ip_address))
+            all_brenner_data.append(brenner_data)
+
+        # Combine all brenner data into a single string and upload
+        upload_image(config['key'], "; ".join(all_brenner_data))
+    else: # No brenner data
+        print("uploading image without brenner data")
+        upload_image(config['key'], "")
 
 if __name__ == '__main__':
     try:
         # Start threads for periodic pinging and data fetching
+        threading.Thread(target=capture_and_upload).start()
         threading.Thread(target=periodic_ping).start()
         # Run Flask
         app.run(host='0.0.0.0', port=80)
