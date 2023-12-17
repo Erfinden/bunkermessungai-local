@@ -146,6 +146,22 @@ h1{
     margin: 0;
 }
 
+.reboot{ 
+    top: 40px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1px 5px;
+    border-radius: 20px;
+    color: white;
+    transition: 0.3s ease-in-out;
+    margin-left: 5px;
+}
+
+.reboot:hover{
+    background: rgba(255, 255, 255, 0.75);
+    color: red;
+}
+
 .image{
     position: relative;
     justify-content: center;

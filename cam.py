@@ -8,6 +8,8 @@ import os
 import datetime
 from cryptography.fernet import Fernet
 
+app = Flask(__name__)
+
 # create config.json if it doesn't exist with default values
 if not os.path.exists("config.json"):
     with open("config.json", "w") as f:
@@ -20,9 +22,27 @@ if not os.path.exists("config.json"):
         }
         json.dump(config, f)
 
+# Define global variables
 cookies = {}
+config = {}
 
-# try to import GPIO on linux
+def refresh_config():
+    global config
+    with open('config.json', 'r') as f:
+        file_content = f.read().strip()
+        if file_content:
+            try:
+                config = json.loads(file_content)
+            except json.JSONDecodeError:
+                print("Error: Invalid JSON in config.json")
+        else:
+            print("Error: config.json is empty")
+
+# Initialize the config variable
+refresh_config()
+main_url = config["main_url"]
+
+# Try to setup GPIO
 if platform.system() == 'Linux':
     try:
         import RPI.GPIO
@@ -31,12 +51,6 @@ if platform.system() == 'Linux':
         print("")
         print("GPIO library not installed: pip install RPI.GPIO when on a rasperry pi, else ignore")
         print("")
-
-with open('config.json', 'r') as f:
-    config = json.load(f)
-main_url = config["main_url"]
-capturing = config["capturing"]
-app = Flask(__name__)
 
 try:
     GPIO.setmode(GPIO.BCM)
@@ -111,11 +125,7 @@ def login_to_server(username, password):
 
 def capture_and_upload():
     while True:
-        with open('config.json', 'r') as f:
-            if f.read().strip():
-                f.seek(0)  # reset file pointer to beginning
-                config = json.load(f)
-        
+        refresh_config()
         capturing = config["capturing"]
         
         if capturing == True:
@@ -166,8 +176,7 @@ def capture_image_linux():
 
 @app.route('/')
 def index():
-    with open('config.json', 'r') as f:
-        config = json.load(f)
+    refresh_config()
     capturing = config["capturing"]
     image_path = os.path.join(app.static_folder, 'images', 'captured_image.jpg')
     
@@ -189,6 +198,11 @@ def index():
 
     return render_template('index.html', last_modified=formatted_last_modified, capturing=capturing, config=config, config_key=config_key, username=username)
 
+@app.route('/reboot')
+def reboot():
+    os.system("sudo reboot")
+    return redirect('/')
+
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form.get('username')
@@ -206,18 +220,16 @@ def logout():
 
 @app.route('/start_capture')
 def start_capture():
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-        config["capturing"] = True
+    refresh_config()    
+    config["capturing"] = True
     with open('config.json', 'w') as f:
         json.dump(config, f)
     return redirect('/')
 
 @app.route('/stop_capture')
 def stop_capture():
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-        config["capturing"] = False
+    refresh_config()
+    config["capturing"] = False
     with open('config.json', 'w') as f:
         json.dump(config, f)
     return redirect('/')
@@ -348,8 +360,7 @@ def callback(data, error, brenner_name, ip_adress):
 
 
 def fetch_data_from_brenner():
-    with open('config.json', 'r') as f:
-        config = json.load(f)
+    refresh_config()
     if "brenner" in config:
         q = "22069"  # Query parameter for data fetching
 
