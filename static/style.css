@@ -296,6 +296,7 @@ h1{
     padding: 2px 5px;
     border-radius: 10px;
     cursor: pointer;
+    z-index: 1000;
 }
 
 
