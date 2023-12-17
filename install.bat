@@ -1,6 +1,6 @@
 @echo off
 :: Install Python packages (assuming you have Python and pip installed)
-pip install Flask requests git cryptography
+pip install Flask requests git cryptography apscheduler
 
 :: Clone the repository to the Downloads folder
 cd %USERPROFILE%\Downloads

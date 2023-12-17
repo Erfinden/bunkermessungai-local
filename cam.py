@@ -8,6 +8,18 @@ import os
 import datetime
 from cryptography.fernet import Fernet
 
+# create config.json if it doesn't exist with default values
+if not os.path.exists("config.json"):
+    with open("config.json", "w") as f:
+        config = {
+            "key": "",
+            "time": "5",
+            "ping_success": False,
+            "main_url": "https://bunkermessungai.de:5000",
+            "capturing": False
+        }
+        json.dump(config, f)
+
 cookies = {}
 
 # try to import GPIO on linux
@@ -23,7 +35,7 @@ if platform.system() == 'Linux':
 with open('config.json', 'r') as f:
     config = json.load(f)
 main_url = config["main_url"]
-
+capturing = config["capturing"]
 app = Flask(__name__)
 
 try:
@@ -96,28 +108,29 @@ def login_to_server(username, password):
     except Exception as e:
         print("Error during login:", e)
 
-capturing = False
-capture_thread = None
 
 def capture_and_upload():
-    global capturing
-    while capturing:
-        with open('config.json', 'r') as f:
-            config = json.load(f)
-        try:
-            # Capture and upload image
-            if platform.system() == 'Windows':
-                capture_image_windows(config['key'])
-            elif platform.system() == 'Linux':
-                capture_image_linux(config['key'])
-            
-            # Fetch and print data for each IP address
-            fetch_data_from_brenner()
-            
-            # Sleep for the appropriate amount of time
-            time.sleep(86400 / int(config['time']))
-        except Exception as e:
-            print("Error:", e)
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    capturing = config["capturing"]
+    while True:
+        if capturing:
+            with open('config.json', 'r') as f:
+                config = json.load(f)
+            try:
+                # Capture and upload image
+                if platform.system() == 'Windows':
+                    capture_image_windows()
+                elif platform.system() == 'Linux':
+                    capture_image_linux()
+                
+                # Fetch and print data for each IP address
+                fetch_data_from_brenner()
+                
+                # Sleep for the appropriate amount of time
+                time.sleep(86400 / int(config['time']))
+            except Exception as e:
+                print("Error:", e)
 
 
 def upload_image(key, brenner_info):
@@ -133,25 +146,27 @@ def upload_image(key, brenner_info):
         print("Error uploading Image. error: \n"+ e)
 
 
-def capture_image_windows(key):
+def capture_image_windows():
     import cv2
+
     cap = cv2.VideoCapture(0)
     ret, frame = cap.read()
     if ret:
         cv2.imwrite("static/images/captured_image.jpg", frame)
-        upload_image(key)
     cap.release()
 
-def capture_image_linux(key):
+def capture_image_linux():
     try:
         os.system("sudo fswebcam -r 1280x720 --no-banner /home/bunkermessungai-local/static/images/captured_image.jpg")
-        upload_image(key)
     except:
         print("Failed to capture image.")
 
 
 @app.route('/')
 def index():
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    capturing = config["capturing"]
     image_path = os.path.join(app.static_folder, 'images', 'captured_image.jpg')
     last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(image_path)) + datetime.timedelta(hours=1)
     formatted_last_modified = last_modified_time.strftime('%d/%m/%Y %H:%M:%S')
@@ -164,7 +179,7 @@ def index():
 
     if config_key == "":
         config_key = None
-    
+
     return render_template('index.html', last_modified=formatted_last_modified, capturing=capturing, config=config, config_key=config_key, username=username)
 
 @app.route('/login', methods=['POST'])
@@ -184,19 +199,20 @@ def logout():
 
 @app.route('/start_capture')
 def start_capture():
-    global capturing, capture_thread
-    if not capturing:
-        capturing = True
-        capture_thread = threading.Thread(target=capture_and_upload)
-        capture_thread.start()
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+        config["capturing"] = True
+    with open('config.json', 'w') as f:
+        json.dump(config, f)
     return redirect('/')
 
 @app.route('/stop_capture')
 def stop_capture():
-    global capturing
-    capturing = False
-    if capture_thread:
-        capture_thread.join()
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+        config["capturing"] = False
+    with open('config.json', 'w') as f:
+        json.dump(config, f)
     return redirect('/')
 
 def ping_server(key):
