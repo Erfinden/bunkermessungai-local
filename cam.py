@@ -26,6 +26,11 @@ if not os.path.exists("config.json"):
 cookies = {}
 config = {}
 
+# If the folder static/images doesnt exist create it
+if not os.path.exists("static/images"):
+    os.makedirs("static/images")
+
+
 def refresh_config():
     global config
     with open('config.json', 'r') as f:
