@@ -3,13 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bunkermessungai Kamera</title>
+    <title>Kamera Local</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet"href="https://fonts.googleapis.com/css?family=Nunito">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
 </head>
 <body>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alertbox">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
     <div class="gradiant_bottom"></div>
     <div class="account_profile" onclick="toggleDropdown()">
         <div class="account_profile_upper">
@@ -22,7 +32,7 @@
             <button id="logout_button" class="dropdown_item" onclick="logout()">logout</button>
         {% else %}
             <div id="login_form" class="dropdown_item">
-                <form id="login_form_internal" action="/login" method="post" onclick="event.stopPropagation();">
+                <form id="login_form_internal" action="/login" method="post" autocomplete="off" onclick="event.stopPropagation();">
                     <input type="text" name="username" placeholder="username" required>
                     <input type="password" name="password" placeholder="password" required>
                     <input type="submit" value="Login">
@@ -35,7 +45,7 @@
     <div class="head">
         <div class="status-light {% if config.ping_success %}success{% else %}failure{% endif %}" id="status-light" title="{% if config.ping_success %}Online{% else %}Offline{% endif %}"></div>
         <h1>Bunkermessungai.de Kamera</h1>
-        <a href="/reboot" class="reboot">
+        <a onclick="fetch('/reboot')" class="reboot">
             <i class="fas fa-power-off"></i>
         </a>
     </div>
@@ -43,7 +53,7 @@
         <div class="image">
             <img src="{{ url_for('static', filename='images/captured_image.jpg') }}" alt="Image File not found!">
             <p>{{ last_modified }}</p>
-            <a href="http://bunkermessungai.de">
+            <a href="https://bunkermessungai.de/cam">
                 <i class="fas fa-arrow-left"></i>
             </a>
         </div>
@@ -72,6 +82,9 @@
                 
                     <label title="Hier kannst du festlegen, wie oft am Tag bilder gemacht werden" for="time">Time:</label>
                     <input title="Hier kannst du festlegen, wie oft am Tag bilder gemacht werden" placeholder="Wie viele Bilder pro Tag?" type="text" id="time" name="time" value="{{ config.time }}"><br>
+                    
+                    <label title="Hier kannst du festlegen, ob die Kamera nur Tagsüber Bilder machen soll" for="dayonly">Nur Tagsüber:</label>
+                    <input title="Hier kannst du festlegen, ob die Kamera nur Tagsüber Bilder machen soll" type="checkbox" id="dayonly" name="dayonly" {% if config.dayonly %}checked{% endif %}>
                 </div>
                 <p class="brenner_p" >Eingerichtete Brenner (optional)</p>
                 <div id="brennerFields">

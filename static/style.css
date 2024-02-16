@@ -33,6 +33,7 @@
 body, html{
     color-scheme: dark;
     background:#191919;
+    margin-bottom: 70px;
 }
 
 input[type="text"]:not(#login_form input[type="text"]) {
@@ -82,7 +83,7 @@ button:hover{
         box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #009e28, 0 0 20px #009e28;
     }
     to {
-        box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #009e28, 0 0 40px #009e28;
+        box-shadow: 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #009e28, 0 0 30px #009e28;
     }
 }
 
@@ -131,7 +132,7 @@ body{
 }
 
 .updateconfig label{
-    width: 40px;
+    min-width: 40px;
     display: inline-block;
 }
 
@@ -282,6 +283,8 @@ h1{
     margin-bottom: 0px;
     text-align: center;
     margin-left: -10px;
+    padding-top: 7px;
+    border-top: rgba(255, 255, 255, 0.2) 1px solid;
 }
 
 .account_profile{
@@ -342,3 +345,18 @@ h1{
 
 }
 
+.alertbox{
+    position: fixed;
+    margin: 0 auto;
+    top: 50px;
+    color: red;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: x-large;
+}
+
+a{
+    cursor: pointer;
+}
