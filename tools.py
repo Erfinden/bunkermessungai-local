@@ -2,7 +2,6 @@ import requests
 from astral import LocationInfo
 from astral.sun import sun
 from datetime import date, datetime
-import pytz
 import os
 import json
 import platform

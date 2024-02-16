@@ -1,0 +1,4 @@
+astral==3.2
+cryptography==3.4.8
+Flask==2.3.2
+Requests==2.31.0
